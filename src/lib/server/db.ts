@@ -24,7 +24,11 @@ const g = globalThis as unknown as { _mongo?: Promise<MongoClient> };
 
 function client(): Promise<MongoClient> {
   const uri = process.env.MONGODB_URI;
-  if (!uri) throw new Error('MONGODB_URI орчны хувьсагч тохируулаагүй байна (.env.local)');
+  if (!uri) {
+    throw new Error(
+      'MONGODB_URI орчны хувьсагч тохируулаагүй байна (локал: .env.local, Vercel: Settings → Environment Variables)'
+    );
+  }
   if (!g._mongo) {
     g._mongo = new MongoClient(uri).connect().then(async (c) => {
       const db = c.db(process.env.MONGODB_DB ?? 'nomio');

@@ -4,13 +4,16 @@ import { MongoServerError } from 'mongodb';
 import { parseCredentials } from '@/lib/server/credentials';
 import { collections } from '@/lib/server/db';
 import { fail, readJson, serverError } from '@/lib/server/http';
-import { createSession } from '@/lib/server/session';
+import { assertSessionConfigured, createSession } from '@/lib/server/session';
 
 export async function POST(req: Request) {
   const creds = parseCredentials(await readJson(req));
   if (!creds.ok) return fail(400, creds.error);
 
   try {
+    // Session-ийн тохиргоо буруу бол хэрэглэгч үүсгэхээс ӨМНӨ алдаа өгнө
+    // (эс бөгөөс хэрэглэгч үүсээд нэвтэрч чадахгүй үлдэнэ).
+    assertSessionConfigured();
     const { users } = await collections();
     const passwordHash = await bcrypt.hash(creds.password, 10);
     const { insertedId } = await users.insertOne({ email: creds.email, passwordHash, createdAt: new Date() });

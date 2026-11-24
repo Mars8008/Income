@@ -10,9 +10,15 @@ const MAX_AGE_DAYS = 30;
 function key() {
   const secret = process.env.SESSION_SECRET;
   if (!secret || secret.length < 32) {
-    throw new Error('SESSION_SECRET орчны хувьсагч дор хаяж 32 тэмдэгт байх ёстой (.env.local)');
+    throw new Error(
+      'SESSION_SECRET орчны хувьсагч алга эсвэл 32 тэмдэгтээс богино байна (локал: .env.local, Vercel: Settings → Environment Variables)'
+    );
   }
   return new TextEncoder().encode(secret);
+}
+
+export function assertSessionConfigured() {
+  key();
 }
 
 export async function encrypt(userId: string) {
